@@ -19,15 +19,12 @@ func New(cfg *internal.Config) *Server {
 		Addr: fmt.Sprintf("%s:%d", cfg.Host, cfg.Port), // 0.0.0.0:8080
 	}
 
-	router := gin.Default()
-	configRoutes(router)
-
-	httpServe.Handler = router
-
 	myServer := Server{
 		httpServe: &httpServe,
 		cfg:       cfg,
 	}
+
+	myServer.configRoutes()
 
 	return &myServer
 }
@@ -40,13 +37,14 @@ func (s *Server) Stop(ctx context.Context) error {
 	return s.httpServe.Shutdown(ctx)
 }
 
-func configRoutes(router *gin.Engine) {
+func (s *Server) configRoutes() {
+	router := gin.Default()
 	router.GET("/")
 	users := router.Group("/users")
 	{
 		users.GET("/porfile")
 		users.POST("/register")
-		users.POST("/login")
+		users.POST("/login", s.login)
 	}
 	notes := router.Group("/notes")
 	{
@@ -56,4 +54,6 @@ func configRoutes(router *gin.Engine) {
 		notes.PUT("/:id")
 		notes.DELETE("/:id")
 	}
+
+	s.httpServe.Handler = router
 }
