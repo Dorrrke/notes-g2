@@ -8,10 +8,9 @@ import (
 )
 
 func main() {
-
 	cfg := internal.ReadConfig()
-
 	fmt.Printf("Host: %s\nPort: %d\n", cfg.Host, cfg.Port)
-	server := server.New("0.0.0.0", "8080")
+
+	server := server.New(cfg)
 	server.Run()
 }
