@@ -2,6 +2,7 @@ package inmemory
 
 import (
 	usersDomain "github.com/Dorrrke/notes-g2/internal/domain/users"
+	"github.com/Dorrrke/notes-g2/pkg/logger"
 )
 
 var emptyUser = usersDomain.User{}
@@ -11,6 +12,9 @@ type InMemory struct {
 }
 
 func New() *InMemory {
+	log := logger.Get()
+
+	log.Debug().Msg("create in memory storage")
 	return &InMemory{
 		userStorage: make(map[string]usersDomain.User),
 	}

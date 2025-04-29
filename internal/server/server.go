@@ -7,6 +7,7 @@ import (
 
 	"github.com/Dorrrke/notes-g2/internal"
 	usersDomain "github.com/Dorrrke/notes-g2/internal/domain/users"
+	"github.com/Dorrrke/notes-g2/pkg/logger"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,6 +23,8 @@ type NotesAPI struct {
 }
 
 func New(cfg *internal.Config, repo Repository) *NotesAPI {
+	log := logger.Get()
+	log.Debug().Msg("configure Notes API server")
 	httpServe := http.Server{
 		Addr: fmt.Sprintf("%s:%d", cfg.Host, cfg.Port), // 0.0.0.0:8080
 	}
@@ -38,6 +41,8 @@ func New(cfg *internal.Config, repo Repository) *NotesAPI {
 }
 
 func (nApi *NotesAPI) Run() error {
+	log := logger.Get()
+	log.Info().Msgf("notes API started on %s", nApi.httpServe.Addr)
 	return nApi.httpServe.ListenAndServe()
 }
 
@@ -46,8 +51,9 @@ func (nApi *NotesAPI) Stop(ctx context.Context) error {
 }
 
 func (nApi *NotesAPI) configRoutes() {
+	log := logger.Get()
+	log.Debug().Msg("configure routes")
 	router := gin.Default()
-	router.GET("/")
 	users := router.Group("/users")
 	{
 		users.GET("/porfile")
