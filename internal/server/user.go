@@ -9,6 +9,7 @@ import (
 )
 
 func (s *NotesAPI) login(ctx *gin.Context) {
+
 	var uReq usersDomain.UserRequest
 
 	if err := ctx.ShouldBindJSON(&uReq); err != nil {
