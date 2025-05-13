@@ -8,6 +8,8 @@ import (
 	inmemory "github.com/Dorrrke/notes-g2/internal/infrastructure/in-memory"
 	"github.com/Dorrrke/notes-g2/internal/server"
 	"github.com/Dorrrke/notes-g2/pkg/logger"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 func main() {
@@ -22,6 +24,11 @@ func main() {
 	repo, err = dbstorage.New(context.Background(), "postgres://user:password@localhost:5432/notes?sslmode=disable")
 	if err != nil {
 		log.Warn().Err(err).Msg("failed to connected to db. Use in memory storage")
+		repo = inmemory.New()
+	}
+	if err = dbstorage.AppyMigrations("postgres://user:password@localhost:5432/notes?sslmode=disable"); err != nil {
+		log.Warn().Err(err).Msg("failed to apply migrations. Use in memory storage")
+		repo.Close()
 		repo = inmemory.New()
 	}
 

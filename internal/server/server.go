@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/Dorrrke/notes-g2/internal"
+	notesDomain "github.com/Dorrrke/notes-g2/internal/domain/notes"
 	usersDomain "github.com/Dorrrke/notes-g2/internal/domain/users"
 	"github.com/Dorrrke/notes-g2/pkg/logger"
 	"github.com/gin-gonic/gin"
@@ -14,6 +15,10 @@ import (
 type Repository interface {
 	SaveUser(user usersDomain.User) error
 	GetUser(login string) (usersDomain.User, error)
+	SaveNotes(tasks []notesDomain.Note) error
+	GetNotes() ([]notesDomain.Note, error)
+	GetNote(nid string) (notesDomain.Note, error)
+	Close() error
 }
 
 type NotesAPI struct {
@@ -62,9 +67,9 @@ func (nApi *NotesAPI) configRoutes() {
 	}
 	notes := router.Group("/notes")
 	{
-		notes.GET("/")
-		notes.GET("/:id")
-		notes.POST("/")
+		notes.GET("/", nApi.getTasks)
+		notes.GET("/:id", nApi.getTask)
+		notes.POST("/", nApi.saveTasks)
 		notes.PUT("/:id")
 		notes.DELETE("/:id")
 	}
