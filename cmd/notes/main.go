@@ -13,20 +13,22 @@ import (
 )
 
 func main() {
-	cfg := internal.ReadConfig()
+	cfg, err := internal.ReadConfig()
+	if err != nil {
+		panic(err)
+	}
 
 	log := logger.Get(cfg.Debug)
 
 	log.Info().Msg("service starting")
 
 	var repo server.Repository
-	var err error
-	repo, err = dbstorage.New(context.Background(), "postgres://user:password@localhost:5432/notes?sslmode=disable")
+	repo, err = dbstorage.New(context.Background(), cfg.DBConnStr)
 	if err != nil {
 		log.Warn().Err(err).Msg("failed to connected to db. Use in memory storage")
 		repo = inmemory.New()
 	}
-	if err = dbstorage.AppyMigrations("postgres://user:password@localhost:5432/notes?sslmode=disable"); err != nil {
+	if err = dbstorage.AppyMigrations(cfg.DBConnStr); err != nil {
 		log.Warn().Err(err).Msg("failed to apply migrations. Use in memory storage")
 		repo.Close()
 		repo = inmemory.New()
