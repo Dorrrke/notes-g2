@@ -36,11 +36,11 @@ func ReadConfig() (*Config, error) {
 
 	if cfg.Port == defaultPort {
 		port := cmp.Or(os.Getenv("NOTES_PORT"), strconv.Itoa(defaultPort))
-		var err error
-		cfg.Port, err = strconv.Atoi(port)
+		portInt, err := strconv.Atoi(port)
 		if err != nil {
 			return nil, err
 		}
+		cfg.Port = portInt
 	}
 
 	if cfg.DBConnStr == defaultDB {

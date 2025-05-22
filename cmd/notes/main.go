@@ -34,6 +34,8 @@ func main() {
 		repo = inmemory.New()
 	}
 
+	log.Info().Msg("connected to db successfully")
+
 	notesAPI := server.New(cfg, repo)
 
 	if err := notesAPI.Run(); err != nil {
