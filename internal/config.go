@@ -2,7 +2,9 @@ package internal
 
 import (
 	"cmp"
+	"errors"
 	"flag"
+	"net"
 	"os"
 	"strconv"
 )
@@ -19,6 +21,8 @@ const (
 	defaultPort = 8080
 	defaultDB   = "postgres://user:password@localhost:5432/notes?sslmode=disable"
 )
+
+var ErrInvalidHost = errors.New("invalid host")
 
 func ReadConfig() (*Config, error) {
 	var cfg Config
@@ -47,5 +51,14 @@ func ReadConfig() (*Config, error) {
 		cfg.DBConnStr = cmp.Or(os.Getenv("NOTES_DB"), defaultDB)
 	}
 
+	if !isValidIP(cfg.Host) {
+		return nil, ErrInvalidHost
+	}
+
 	return &cfg, nil
+}
+
+func isValidIP(ip string) bool {
+	parsedIP := net.ParseIP(ip)
+	return parsedIP != nil
 }
