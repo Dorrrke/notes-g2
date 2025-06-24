@@ -8,9 +8,13 @@ import (
 	"github.com/Dorrrke/notes-g2/pkg/logger"
 )
 
+const (
+	contextTimeout = 5 * time.Second
+)
+
 func (db *DBStorage) GetNotes() ([]notesDomain.Note, error) {
 	log := logger.Get()
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
 
 	rows, err := db.db.Query(ctx, "SELECT * FROM notes")
@@ -22,7 +26,7 @@ func (db *DBStorage) GetNotes() ([]notesDomain.Note, error) {
 	var notes []notesDomain.Note
 	for rows.Next() {
 		var note notesDomain.Note
-		if err := rows.Scan(&note.NID, &note.Title, &note.Content, &note.Status, &note.Created_at, &note.UID); err != nil {
+		if err = rows.Scan(&note.NID, &note.Title, &note.Content, &note.Status, &note.CreatedAt, &note.UID); err != nil {
 			log.Error().Err(err).Msg("failed to scan note")
 			return nil, err
 		}
@@ -34,13 +38,13 @@ func (db *DBStorage) GetNotes() ([]notesDomain.Note, error) {
 
 func (db *DBStorage) GetNote(nid string) (notesDomain.Note, error) {
 	log := logger.Get()
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
 
 	var note notesDomain.Note
 
 	row := db.db.QueryRow(ctx, "SELECT * FROM notes WHERE nid = $1", nid)
-	err := row.Scan(&note.NID, &note.Title, &note.Content, &note.Status, &note.Created_at, &note.UID)
+	err := row.Scan(&note.NID, &note.Title, &note.Content, &note.Status, &note.CreatedAt, &note.UID)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to get note")
 		return notesDomain.Note{}, err
@@ -52,7 +56,7 @@ func (db *DBStorage) GetNote(nid string) (notesDomain.Note, error) {
 func (db *DBStorage) SaveNotes(notes []notesDomain.Note) error {
 	log := logger.Get()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
 
 	tx, err := db.db.Begin(ctx)
@@ -61,18 +65,22 @@ func (db *DBStorage) SaveNotes(notes []notesDomain.Note) error {
 	}
 
 	defer func() {
-		if err := tx.Rollback(ctx); err != nil {
+		if err = tx.Rollback(ctx); err != nil {
 			log.Error().Err(err).Msg("failed to rollback transaction")
 		}
 	}()
 
-	_, err = tx.Prepare(ctx, "save_task", "INSERT INTO notes(nid, title, content, status, created_at, user_id) VALUES ($1, $2, $3, $4, $5, $6)")
+	_, err = tx.Prepare(
+		ctx,
+		"save_task",
+		"INSERT INTO notes(nid, title, content, status, created_at, user_id) VALUES ($1, $2, $3, $4, $5, $6)",
+	)
 	if err != nil {
 		return err
 	}
 
 	for _, note := range notes {
-		_, err = tx.Exec(ctx, "save_task", note.NID, note.Title, note.Content, note.Status, note.Created_at, note.UID)
+		_, err = tx.Exec(ctx, "save_task", note.NID, note.Title, note.Content, note.Status, note.CreatedAt, note.UID)
 		if err != nil {
 			return err
 		}

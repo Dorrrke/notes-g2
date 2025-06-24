@@ -6,7 +6,7 @@ import (
 	"github.com/Dorrrke/notes-g2/pkg/logger"
 )
 
-var emptyUser = usersDomain.User{}
+var emptyUser = usersDomain.User{} //nolint:gochecknoglobals // its default value for empty var
 
 type InMemory struct {
 	userStorage map[string]usersDomain.User
@@ -42,10 +42,10 @@ func (im *InMemory) GetUser(login string) (usersDomain.User, error) {
 	return emptyUser, usersDomain.ErrUserNotFound
 }
 
-func (im *InMemory) SaveNotes(tasks []notesDomain.Note) error { return nil }
+func (im *InMemory) SaveNotes(_ []notesDomain.Note) error { return nil }
 
 func (im *InMemory) GetNotes() ([]notesDomain.Note, error) { return nil, nil }
 
-func (im *InMemory) GetNote(nid string) (notesDomain.Note, error) { return notesDomain.Note{}, nil }
+func (im *InMemory) GetNote(_ string) (notesDomain.Note, error) { return notesDomain.Note{}, nil }
 
 func (im *InMemory) Close() error { return nil }

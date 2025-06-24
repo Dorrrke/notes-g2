@@ -2,6 +2,7 @@ package dbstorage
 
 import (
 	"context"
+	"errors"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/jackc/pgx/v5"
@@ -33,7 +34,7 @@ func AppyMigrations(addr string) error {
 
 	defer m.Close()
 
-	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+	if err = m.Up(); err != nil && errors.Is(err, migrate.ErrNoChange) {
 		return err
 	}
 

@@ -12,6 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const readHeaderTimeout = 5
+
 type Repository interface {
 	SaveUser(user usersDomain.User) error
 	GetUser(login string) (usersDomain.User, error)
@@ -31,7 +33,8 @@ func New(cfg *internal.Config, repo Repository) *NotesAPI {
 	log := logger.Get()
 	log.Debug().Msg("configure Notes API server")
 	httpServe := http.Server{
-		Addr: fmt.Sprintf("%s:%d", cfg.Host, cfg.Port), // 0.0.0.0:8080
+		ReadHeaderTimeout: readHeaderTimeout,
+		Addr:              fmt.Sprintf("%s:%d", cfg.Host, cfg.Port), // 0.0.0.0:8080
 	}
 
 	notesAPI := NotesAPI{

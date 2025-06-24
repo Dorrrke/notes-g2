@@ -8,9 +8,9 @@ import (
 	"github.com/rs/zerolog"
 )
 
-var log zerolog.Logger
+var log zerolog.Logger //nolint:gochecknoglobals // its ok
 
-var once sync.Once
+var once sync.Once //nolint:gochecknoglobals // its ok
 
 func Get(flag ...bool) zerolog.Logger {
 	once.Do(func() {
@@ -29,7 +29,13 @@ func Get(flag ...bool) zerolog.Logger {
 			return file + ":" + strconv.Itoa(line)
 		}
 		if flag[0] {
-			log = zerolog.New(os.Stdout).Level(zerolog.DebugLevel).With().Timestamp().Caller().Logger().Output(zerolog.ConsoleWriter{Out: os.Stdout})
+			log = zerolog.New(os.Stdout).
+				Level(zerolog.DebugLevel).
+				With().
+				Timestamp().
+				Caller().
+				Logger().
+				Output(zerolog.ConsoleWriter{Out: os.Stdout})
 		} else {
 			log = zerolog.New(os.Stdout).Level(zerolog.InfoLevel).With().Timestamp().Caller().Logger().Output(zerolog.ConsoleWriter{Out: os.Stdout})
 		}
