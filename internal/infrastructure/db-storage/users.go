@@ -3,7 +3,6 @@ package dbstorage
 import (
 	"context"
 	"errors"
-	"time"
 
 	usersDomain "github.com/Dorrrke/notes-g2/internal/domain/users"
 	"github.com/jackc/pgerrcode"
@@ -11,7 +10,7 @@ import (
 )
 
 func (db *DBStorage) SaveUser(user usersDomain.User) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
 	defer cancel()
 
 	_, err := db.db.Exec(ctx, "INSERT INTO users(id, name, email, password) VALUES ($1, $2, $3, $4)",
