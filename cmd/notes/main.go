@@ -40,7 +40,6 @@ func main() {
 	log := logger.Get(cfg.Debug)
 
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 
 	go gracefulShutdown(cancel)
 

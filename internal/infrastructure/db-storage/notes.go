@@ -66,7 +66,11 @@ func (db *DBStorage) SaveNotes(notes []notesDomain.Note) error {
 		}
 	}()
 
-	_, err = tx.Prepare(ctx, "save_task", "INSERT INTO notes(nid, title, content, status, created_at, user_id) VALUES ($1, $2, $3, $4, $5, $6)")
+	_, err = tx.Prepare(
+		ctx,
+		"save_task",
+		"INSERT INTO notes(nid, title, content, status, created_at, user_id) VALUES ($1, $2, $3, $4, $5, $6)",
+	)
 	if err != nil {
 		return err
 	}

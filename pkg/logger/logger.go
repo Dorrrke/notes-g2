@@ -29,7 +29,13 @@ func Get(flag ...bool) zerolog.Logger {
 			return file + ":" + strconv.Itoa(line)
 		}
 		if flag[0] {
-			log = zerolog.New(os.Stdout).Level(zerolog.DebugLevel).With().Timestamp().Caller().Logger().Output(zerolog.ConsoleWriter{Out: os.Stdout})
+			log = zerolog.New(os.Stdout).
+				Level(zerolog.DebugLevel).
+				With().
+				Timestamp().
+				Caller().
+				Logger().
+				Output(zerolog.ConsoleWriter{Out: os.Stdout})
 		} else {
 			log = zerolog.New(os.Stdout).Level(zerolog.InfoLevel).With().Timestamp().Caller().Logger().Output(zerolog.ConsoleWriter{Out: os.Stdout})
 		}
