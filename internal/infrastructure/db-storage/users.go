@@ -31,6 +31,6 @@ func (db *DBStorage) SaveUser(user usersDomain.User) error {
 	return nil
 }
 
-func (db *DBStorage) GetUser(login string) (usersDomain.User, error) {
+func (db *DBStorage) GetUser(_ string) (usersDomain.User, error) {
 	panic("unimplemented")
 }

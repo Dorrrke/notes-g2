@@ -53,7 +53,9 @@ func main() {
 	}
 	if err = dbstorage.AppyMigrations(cfg.DBConnStr); err != nil {
 		log.Warn().Err(err).Msg("failed to apply migrations. Use in memory storage")
-		repo.Close()
+		if rErr := repo.Close(); rErr != nil {
+			log.Error().Err(rErr).Msg("failed to close repository")
+		}
 		repo = inmemory.New()
 	}
 
@@ -69,16 +71,16 @@ func main() {
 
 	group.Go(func() error {
 		<-gCtx.Done()
-		if err := notesAPI.Stop(gCtx); err != nil {
+		if err = notesAPI.Stop(gCtx); err != nil {
 			return err
 		}
-		if err := repo.Close(); err != nil {
+		if err = repo.Close(); err != nil {
 			return err
 		}
 		return nil
 	})
 
-	if err := group.Wait(); err != nil {
+	if err = group.Wait(); err != nil {
 		if !errors.Is(err, http.ErrServerClosed) {
 			log.Fatal().Err(err).Msg("service stopped with error")
 		}

@@ -108,7 +108,6 @@ func TestLogin(t *testing.T) {
 			assert.Equal(t, tc.want.resultMsg, respBody)
 		})
 	}
-
 }
 
 func BenchmarkLogin(b *testing.B) {
@@ -149,10 +148,9 @@ func BenchmarkLogin(b *testing.B) {
 	req.Body = body
 
 	// b.ResetTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		req.Send()
 	}
-
 }
 
 func TestReqister(t *testing.T) {

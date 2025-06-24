@@ -10,15 +10,15 @@ type Repository interface {
 	GetUser(login string) (usersDomain.User, error)
 }
 
-type UserService struct {
+type Service struct {
 	repo Repository
 }
 
-func New(repo Repository) *UserService {
-	return &UserService{repo: repo}
+func New(repo Repository) *Service {
+	return &Service{repo: repo}
 }
 
-func (us *UserService) RegisterUser(user usersDomain.User) (string, error) {
+func (us *Service) RegisterUser(user usersDomain.User) (string, error) {
 	user.UID = uuid.New().String()
 
 	err := us.repo.SaveUser(user)
@@ -28,7 +28,7 @@ func (us *UserService) RegisterUser(user usersDomain.User) (string, error) {
 	return user.UID, nil
 }
 
-func (us *UserService) LoginUser(userCreds usersDomain.UserRequest) (string, error) {
+func (us *Service) LoginUser(userCreds usersDomain.UserRequest) (string, error) {
 	dbUser, err := us.repo.GetUser(userCreds.Email)
 	if err != nil {
 		return ``, err
