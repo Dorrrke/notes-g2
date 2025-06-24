@@ -2,9 +2,12 @@ package dbstorage
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	usersDomain "github.com/Dorrrke/notes-g2/internal/domain/users"
+	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 func (db *DBStorage) SaveUser(user usersDomain.User) error {
@@ -16,6 +19,12 @@ func (db *DBStorage) SaveUser(user usersDomain.User) error {
 	)
 
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			if pgerrcode.IsIntegrityConstraintViolation(pgErr.Code) {
+				return usersDomain.ErrUserAlredyExists
+			}
+		}
 		return err
 	}
 
