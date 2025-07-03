@@ -8,14 +8,17 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/Dorrrke/notes-g2/internal"
-	dbstorage "github.com/Dorrrke/notes-g2/internal/infrastructure/db-storage"
-	inmemory "github.com/Dorrrke/notes-g2/internal/infrastructure/in-memory"
-	"github.com/Dorrrke/notes-g2/internal/server"
+	internal "github.com/Dorrrke/notes-g2/internal/tracker"
+	authservicev1 "github.com/Dorrrke/notes-g2/internal/tracker/grpclient"
+	dbstorage "github.com/Dorrrke/notes-g2/internal/tracker/infrastructure/db-storage"
+	inmemory "github.com/Dorrrke/notes-g2/internal/tracker/infrastructure/in-memory"
+	"github.com/Dorrrke/notes-g2/internal/tracker/server"
 	"github.com/Dorrrke/notes-g2/pkg/logger"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"golang.org/x/sync/errgroup"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func gracefulShutdown(cancel context.CancelFunc) {
@@ -61,7 +64,15 @@ func main() {
 
 	log.Info().Msg("connected to db successfully")
 
-	notesAPI := server.New(cfg, repo)
+	conn, err := grpc.NewClient(cfg.AuthAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to connect to auth service")
+	}
+	defer conn.Close()
+
+	client := authservicev1.NewAuthServiceClient(conn)
+
+	notesAPI := server.New(cfg, repo, client)
 
 	group, gCtx := errgroup.WithContext(ctx)
 

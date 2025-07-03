@@ -8,13 +8,28 @@ services:
     ports:
       - "5432:5432"
 
-  app:
-    build: .
+  auth:
+    build:
+      context: .
+      dockerfile: auth.Dockerfile
     ports:
-      - "8080:8080"
+      - "9091:9091"
+    environment:
+      - DB_DSN=postgres://user:password@db:5432/notes?sslmode=disable
+    depends_on:
+      - db
+
+  app:
+    build: 
+      context: .
+      dockerfile: tracker.Dockerfile
+    ports:
+      - "9090:9090"
     environment:
       - NOTES_DB=postgres://user:password@db:5432/notes?sslmode=disable
+      - AUTH_ADDR=auth:9091
     volumes:
       - ./migrations:/root/migrations
     depends_on:
       - db
+      - auth
